@@ -249,6 +249,16 @@ let
           for f in "$dir"/bin/*; do
             patchelf --set-rpath "$dir/lib" "$f" || true
           done
+        '' +
+        # FIXME: We only patch darwin std on darwin host, and only host platform is patched.
+        # I don't think bringing cross-compiled libiconv is a good idea.
+        optionalString ((pname == "rust-std" || pname == "rust") && hostPlatform.isDarwin) ''
+          shopt -s nullglob
+          for f in $out/lib/rustlib/${self.rust.toRustTarget hostPlatform}/lib/lib*.dylib; do
+            install_name_tool \
+              -add_rpath "${self.libiconv}/lib" \
+              "$f" || true
+          done
         '';
 
       postFixup = ''
@@ -306,8 +316,6 @@ let
 
       # FIXME: If these propagated dependencies go components, darwin build will fail with "`-liconv` not found".
       propagatedBuildInputs = [ self.stdenv.cc ];
-      depsTargetTargetPropagated =
-        self.lib.optional (self.stdenv.targetPlatform.isDarwin) self.targetPackages.libiconv;
 
       meta.platforms = self.lib.platforms.all;
     };
