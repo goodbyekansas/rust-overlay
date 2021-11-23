@@ -205,8 +205,8 @@ let
 
       # Ourselves have offset -1. In order to make these offset -1 dependencies of downstream derivation,
       # they are offset 0 propagated.
-      propagatedBuildInputs =
-        optional (pname == "rustc") [ self.stdenv.cc self.buildPackages.stdenv.cc ];
+      # propagatedBuildInputs =
+        # optional (pname == "rustc") [ self.stdenv.cc self.buildPackages.stdenv.cc ];
       # This goes downstream packages' buildInputs.
       depsTargetTargetPropagated =
         optional (pname == "rustc" && self.stdenv.targetPlatform.isDarwin) self.libiconv;
